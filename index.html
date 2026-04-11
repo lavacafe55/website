@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LAVA Café</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --black: #0a0704;
+      --obsidian: #110e0a;
+      --ember: #c0392b;
+      --lava: #e74c3c;
+      --molten: #f39c12;
+      --ash: #2c2520;
+      --smoke: #5a4f47;
+      --cream: #f5ede4;
+      --warm-white: #fdf6ef;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--cream);
+      font-family: 'Cormorant Garamond', serif;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 4rem;
+      background: linear-gradient(to bottom, rgba(10,7,4,0.95), transparent);
+      backdrop-filter: blur(2px);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.3em;
+      color: var(--molten);
+      text-shadow: 0 0 30px rgba(243,156,18,0.4);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--smoke);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--molten); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 50% 100%, rgba(192,57,43,0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 50% at 30% 80%, rgba(243,156,18,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 70% 70%, rgba(231,76,60,0.1) 0%, transparent 60%),
+        var(--black);
+    }
+
+    /* Lava flow lines */
+    .lava-lines {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60%;
+      overflow: hidden;
+    }
+
+    .lava-lines svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.15;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 1.5rem;
+      animation: fadeUp 1s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(8rem, 22vw, 18rem);
+      line-height: 0.85;
+      letter-spacing: 0.02em;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--ember);
+      text-stroke: 1px var(--ember);
+      position: relative;
+      animation: fadeUp 1s 0.15s ease both;
+    }
+
+    .hero-title .filled {
+      color: var(--cream);
+      -webkit-text-stroke: 0;
+    }
+
+    .hero-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
+      color: var(--smoke);
+      margin-top: 1.5rem;
+      letter-spacing: 0.15em;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+
+    .hero-cta {
+      margin-top: 3rem;
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      animation: fadeUp 1s 0.45s ease both;
+    }
+
+    .btn-primary {
+      background: var(--ember);
+      color: var(--warm-white);
+      padding: 0.9rem 2.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+
+    .btn-primary:hover {
+      background: var(--lava);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--cream);
+      padding: 0.9rem 2.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--ash);
+      cursor: pointer;
+      transition: border-color 0.3s, color 0.3s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--smoke);
+      color: var(--molten);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      animation: fadeUp 1s 0.6s ease both;
+    }
+
+    .scroll-hint span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--smoke);
+      text-transform: uppercase;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--ember), transparent);
+      animation: scrollPulse 2s ease infinite;
+    }
+
+    /* ── SECTION COMMON ── */
+    section { padding: 7rem 4rem; }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 1;
+      letter-spacing: 0.05em;
+      margin-bottom: 2rem;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--ash), transparent);
+      margin: 0;
+    }
+
+    /* ── MENU ── */
+    #menu {
+      background: var(--obsidian);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #menu::before {
+      content: '';
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(192,57,43,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .menu-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .menu-categories {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .menu-tab {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.2rem;
+      background: transparent;
+      color: var(--smoke);
+      border: 1px solid var(--ash);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .menu-tab.active, .menu-tab:hover {
+      background: var(--ember);
+      color: var(--warm-white);
+      border-color: var(--ember);
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .menu-item {
+      padding: 1.8rem 0;
+      border-bottom: 1px solid var(--ash);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+      transition: background 0.2s;
+      padding-right: 2rem;
+    }
+
+    .menu-item:nth-child(odd) { padding-right: 3rem; border-right: 1px solid var(--ash); }
+    .menu-item:nth-child(even) { padding-left: 3rem; padding-right: 0; }
+
+    .menu-item-info h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      margin-bottom: 0.3rem;
+      color: var(--cream);
+    }
+
+    .menu-item-info p {
+      font-size: 0.85rem;
+      color: var(--smoke);
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .menu-price {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--molten);
+      white-space: nowrap;
+      margin-top: 0.2rem;
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      background: var(--black);
+      position: relative;
+    }
+
+    .about-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+
+    .about-visual {
+      position: relative;
+      height: 500px;
+    }
+
+    .about-card {
+      position: absolute;
+      border: 1px solid var(--ash);
+      background: var(--obsidian);
+      overflow: hidden;
+    }
+
+    .about-card-main {
+      inset: 0 3rem 3rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8rem;
+    }
+
+    .about-card-accent {
+      width: 180px; height: 180px;
+      right: 0; bottom: 0;
+      background: linear-gradient(135deg, var(--ember), var(--obsidian));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .about-card-accent span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      color: var(--cream);
+      opacity: 0.9;
+    }
+
+    .about-text p {
+      font-size: 1.1rem;
+      line-height: 1.9;
+      color: var(--smoke);
+      margin-bottom: 1.5rem;
+    }
+
+    .about-text p strong {
+      color: var(--cream);
+      font-weight: 400;
+    }
+
+    .about-stats {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 2.5rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--ash);
+    }
+
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      color: var(--molten);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--smoke);
+    }
+
+    /* ── GALLERY ── */
+    #gallery {
+      background: var(--obsidian);
+      padding-bottom: 5rem;
+    }
+
+    .gallery-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: 280px 280px;
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+
+    .gallery-item {
+      background: var(--ash);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .gallery-item:first-child {
+      grid-row: 1 / 3;
+    }
+
+    .gallery-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,7,4,0.7), transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .gallery-item:hover::after { opacity: 1; }
+
+    .gallery-label {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      z-index: 2;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cream);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .gallery-item:hover .gallery-label { opacity: 1; }
+
+    /* Color variants for visual interest */
+    .gallery-item:nth-child(1) { background: linear-gradient(135deg, #1a0f0a 0%, #2d1410 100%); }
+    .gallery-item:nth-child(2) { background: linear-gradient(135deg, #150b06 0%, #261208 100%); }
+    .gallery-item:nth-child(3) { background: linear-gradient(135deg, #1c1008 0%, #2e1a0c 100%); }
+    .gallery-item:nth-child(4) { background: linear-gradient(135deg, #0f0905 0%, #201208 100%); }
+    .gallery-item:nth-child(5) { background: linear-gradient(135deg, #180d08 0%, #2a140a 100%); }
+
+    /* ── CONTACT ── */
+    #contact {
+      background: var(--black);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #contact::before {
+      content: '';
+      position: absolute;
+      bottom: -300px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(192,57,43,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .contact-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+    }
+
+    .contact-info h2 { margin-bottom: 2.5rem; }
+
+    .contact-detail {
+      margin-bottom: 2rem;
+    }
+
+    .contact-detail-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 0.4rem;
+    }
+
+    .contact-detail-value {
+      font-size: 1rem;
+      color: var(--cream);
+      line-height: 1.6;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--smoke);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: var(--obsidian);
+      border: 1px solid var(--ash);
+      color: var(--cream);
+      padding: 0.9rem 1.2rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+      resize: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--ember);
+    }
+
+    .form-group textarea { height: 120px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--obsidian);
+      padding: 3rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--ash);
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.3em;
+      color: var(--molten);
+    }
+
+    .footer-copy {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--smoke);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--smoke);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover { color: var(--molten); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
+      50% { opacity: 1; transform: scaleY(1); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 5rem 1.5rem; }
+
+      .about-inner,
+      .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+
+      .about-visual { height: 300px; }
+
+      .menu-grid { grid-template-columns: 1fr; }
+      .menu-item:nth-child(odd) { border-right: none; padding-right: 0; }
+      .menu-item:nth-child(even) { padding-left: 0; }
+
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 200px 200px 200px;
+      }
+      .gallery-item:first-child { grid-row: auto; }
+
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">LAVA</div>
+    <ul class="nav-links">
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#contact">Visit Us</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="lava-lines">
+      <svg viewBox="0 0 1440 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 600 Q200 400 400 500 Q600 600 800 450 Q1000 300 1200 420 Q1350 500 1440 380 L1440 600 Z" fill="rgba(192,57,43,0.3)"/>
+        <path d="M0 600 Q300 500 500 550 Q700 600 900 480 Q1100 360 1300 460 L1440 600 Z" fill="rgba(231,76,60,0.15)"/>
+        <path d="M0 600 Q250 530 450 570 Q650 610 850 510 Q1050 410 1250 490 L1440 600 Z" fill="rgba(243,156,18,0.08)"/>
+      </svg>
+    </div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Est. 2021 · Premium Coffee & Dessert</p>
+      <h1 class="hero-title">
+        <span class="filled">L</span>AVA
+      </h1>
+      <p class="hero-subtitle">Where every cup burns with passion</p>
+      <div class="hero-cta">
+        <a href="#menu" class="btn-primary">Explore Menu</a>
+        <a href="#contact" class="btn-secondary">Find Us</a>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- MENU -->
+  <section id="menu">
+    <div class="menu-inner">
+      <p class="section-label">Our Offerings</p>
+      <h2 class="section-title">The Menu</h2>
+
+      <div class="menu-categories">
+        <button class="menu-tab active">Hot Drinks</button>
+        <button class="menu-tab">Cold Drinks</button>
+        <button class="menu-tab">Food</button>
+        <button class="menu-tab">Desserts</button>
+      </div>
+
+      <div class="menu-grid" id="menuGrid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-inner">
+      <div class="about-visual">
+        <div class="about-card about-card-main">🌋</div>
+        <div class="about-card about-card-accent">
+          <span>2024</span>
+        </div>
+      </div>
+      <div class="about-text">
+        <p class="section-label">Our Story</p>
+        <h2 class="section-title">Born from<br>the Heat</h2>
+        <p>Lava Café was born from a simple obsession — the perfect cup. <strong>We believe coffee is a craft,</strong> not a commodity. Each bean is selected with care, each brew executed with precision.</p>
+        <p>Our space is designed to feel like a retreat. Dark, warm, and alive. A place where <strong>time slows down</strong> and every sip is a moment worth savoring.</p>
+        <div class="about-stats">
+          <div>
+            <div class="stat-num">18+</div>
+            <div class="stat-label">Blends</div>
+          </div>
+          <div>
+            <div class="stat-num">4</div>
+            <div class="stat-label">Origins</div>
+          </div>
+          <div>
+            <div class="stat-num">∞</div>
+            <div class="stat-label">Good Mornings</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="gallery-inner">
+      <p class="section-label">Atmosphere</p>
+      <h2 class="section-title">The Space</h2>
+      <div class="gallery-grid">
+        <div class="gallery-item">☕<div class="gallery-label">Signature Brew</div></div>
+        <div class="gallery-item">🍰<div class="gallery-label">Pastries</div></div>
+        <div class="gallery-item">🌿<div class="gallery-label">Interior</div></div>
+        <div class="gallery-item">🫘<div class="gallery-label">Our Beans</div></div>
+        <div class="gallery-item">🥐<div class="gallery-label">Breakfast</div></div>
+      </div>
+      <p style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--smoke);margin-top:1.5rem;letter-spacing:0.2em;text-align:center;">Replace emoji placeholders with your real photos</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-inner">
+      <div class="contact-info">
+        <p class="section-label">Come Visit</p>
+        <h2 class="section-title">Find<br>the Heat</h2>
+
+        <div class="contact-detail">
+          <div class="contact-detail-label">Address</div>
+          <div class="contact-detail-value">123 Volcano Street<br>Your City, Egypt</div>
+        </div>
+
+        <div class="contact-detail">
+          <div class="contact-detail-label">Hours</div>
+          <div class="contact-detail-value">
+            Mon – Fri: 7:00 AM – 11:00 PM<br>
+            Sat – Sun: 8:00 AM – 12:00 AM
+          </div>
+        </div>
+
+        <div class="contact-detail">
+          <div class="contact-detail-label">Phone</div>
+          <div class="contact-detail-value">+20 100 000 0000</div>
+        </div>
+
+        <div class="contact-detail">
+          <div class="contact-detail-label">Email</div>
+          <div class="contact-detail-value">hello@lavacafe.com</div>
+        </div>
+      </div>
+
+      <div>
+        <p class="section-label">Send a Message</p>
+        <div class="contact-form">
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" placeholder="Ahmed Hassan" />
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" placeholder="you@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Message</label>
+            <textarea placeholder="Reservation, inquiry, or just say hi..."></textarea>
+          </div>
+          <button class="btn-primary" style="align-self:flex-start;border:none;" onclick="alert('Message sent! We will get back to you soon.')">Send Message</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">LAVA</div>
+    <p class="footer-copy">© 2024 Lava Café. All rights reserved.</p>
+    <ul class="footer-links">
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    // ── MENU DATA ──
+    const menuData = {
+      "Hot Drinks": [
+        { name: "Lava Espresso", desc: "Double shot, volcanic intensity", price: "EGP 45" },
+        { name: "Ember Cappuccino", desc: "Velvety foam, rich crema", price: "EGP 55" },
+        { name: "Obsidian Americano", desc: "Dark, bold, unapologetic", price: "EGP 40" },
+        { name: "Molten Latte", desc: "Smooth milk, signature blend", price: "EGP 60" },
+        { name: "Ash & Honey Cortado", desc: "Equal parts espresso & milk", price: "EGP 50" },
+        { name: "Cinnamon Flat White", desc: "Micro-foam, warm spice", price: "EGP 58" },
+      ],
+      "Cold Drinks": [
+        { name: "Iced Lava Flow", desc: "Cold brew over dark chocolate ice", price: "EGP 65" },
+        { name: "Volcanic Frappe", desc: "Blended espresso & caramel", price: "EGP 70" },
+        { name: "Smoke & Vanilla Cold Brew", desc: "12-hour steep, silky finish", price: "EGP 60" },
+        { name: "Ember Lemonade", desc: "Charcoal lemon, rose essence", price: "EGP 45" },
+        { name: "Obsidian Iced Matcha", desc: "Ceremonial grade, oat milk", price: "EGP 65" },
+        { name: "Ash Latte (Iced)", desc: "Black sesame, date syrup", price: "EGP 68" },
+      ],
+      "Food": [
+        { name: "Volcanic Avocado Toast", desc: "Sourdough, chili oil, poached egg", price: "EGP 75" },
+        { name: "Smoked Salmon Bagel", desc: "Cream cheese, capers, dill", price: "EGP 90" },
+        { name: "Ember Chicken Wrap", desc: "Grilled chicken, sumac, tahini", price: "EGP 80" },
+        { name: "Lava Club Sandwich", desc: "Triple decker, crispy bacon", price: "EGP 85" },
+        { name: "Dark Rye Bruschetta", desc: "Roasted tomato, basil, balsamic", price: "EGP 55" },
+        { name: "Truffle Mushroom Panini", desc: "Gruyère, wild mushroom", price: "EGP 88" },
+      ],
+      "Desserts": [
+        { name: "Molten Lava Cake", desc: "Dark chocolate, vanilla ice cream", price: "EGP 65" },
+        { name: "Volcanic Cheesecake", desc: "Activated charcoal base, berry", price: "EGP 60" },
+        { name: "Ember Crème Brûlée", desc: "Espresso infused, caramelized", price: "EGP 55" },
+        { name: "Ash Tiramisu", desc: "Savoiardi, mascarpone, cocoa", price: "EGP 58" },
+        { name: "Obsidian Panna Cotta", desc: "Squid ink, salted caramel", price: "EGP 50" },
+        { name: "Lava Cookie Skillet", desc: "Warm cookies, vanilla gelato", price: "EGP 62" },
+      ]
+    };
+
+    function renderMenu(category) {
+      const grid = document.getElementById('menuGrid');
+      const items = menuData[category];
+      grid.innerHTML = items.map(item => `
+        <div class="menu-item">
+          <div class="menu-item-info">
+            <h3>${item.name}</h3>
+            <p>${item.desc}</p>
+          </div>
+          <div class="menu-price">${item.price}</div>
+        </div>
+      `).join('');
+    }
+
+    // Tab switching
+    document.querySelectorAll('.menu-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderMenu(tab.textContent);
+      });
+    });
+
+    renderMenu('Hot Drinks');
+
+    // ── SCROLL REVEAL ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.menu-item, .gallery-item, .contact-detail').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
